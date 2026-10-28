@@ -1,0 +1,14 @@
+.DS_Store
+*.o
+*.a
+*.tmp
+*.dSYM/
+build/
+Build/
+local/
+xcuserdata/
+*.xcworkspace
+__pycache__/
+*.pyc
+*.profraw
+*.profdata
