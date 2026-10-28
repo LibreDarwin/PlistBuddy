@@ -1,0 +1,139 @@
+.\" Copyright (C) 2026, LibreDarwin
+.\" SPDX-License-Identifier: BSD-3-Clause
+.Dd October 28, 2026
+.Dt PLISTBUDDY 8
+.Os
+.Sh NAME
+.Nm PlistBuddy
+.Nd read and modify property list files
+.Sh SYNOPSIS
+.Nm
+.Op Fl cxlh
+.Ar file.plist
+.Sh DESCRIPTION
+.Nm
+edits the property list stored in
+.Ar file.plist ,
+creating it if it does not exist.
+Without
+.Fl c ,
+it reads commands from standard input, one per line, after a
+.Dq Command:
+prompt.
+Changes are kept in memory until a
+.Cm Save
+command, or, when commands come from
+.Fl c ,
+until all of them have run.
+The file is always written back in XML form.
+.Pp
+The options are as follows:
+.Bl -tag -width indent
+.It Fl c Ar command
+Run
+.Ar command
+instead of reading commands interactively.
+May be given more than once; the commands run in order.
+.It Fl x
+Print values as XML property lists where possible.
+.It Fl l
+Do not follow symbolic links anywhere in the path of
+.Ar file.plist .
+.It Fl h
+Print the command reference and exit.
+.El
+.Sh COMMANDS
+Command names are matched without regard to case.
+.Bl -tag -width indent
+.It Cm Help
+Print the command reference.
+.It Cm Exit
+Leave without saving.
+.It Cm Save
+Write the current property list to the file.
+.It Cm Revert
+Reload the file, discarding unsaved changes.
+.It Cm Clear Op Ar type
+Replace the whole property list with an empty root of
+.Ar type ,
+a dictionary by default.
+.It Cm Print Op Ar entry
+Print
+.Ar entry ,
+or the whole property list.
+.It Cm Set Ar entry value
+Change the value of an existing, non-container
+.Ar entry .
+.It Cm Add Ar entry type Op Ar value
+Create
+.Ar entry
+with the given
+.Ar type
+and
+.Ar value .
+Everything after
+.Ar type
+is the value, spaces included.
+.It Cm Copy Ar source destination
+Copy the
+.Ar source
+entry to a new
+.Ar destination
+entry.
+.It Cm Delete Ar entry
+Remove
+.Ar entry .
+.It Cm Merge Oo Fl r Oc Ar file Op Ar entry
+Add the contents of the property list in
+.Ar file
+to the container
+.Ar entry ,
+or to the current container.
+Existing keys are skipped unless
+.Fl r
+is given, in which case containers of the same kind are merged recursively.
+.It Cm Import Ar entry file
+Set
+.Ar entry
+to the contents of
+.Ar file ,
+creating it as data if it does not exist.
+.It Cm CD Ar entry
+Make the container
+.Ar entry
+the current container for relative entries.
+.El
+.Sh ENTRIES
+An entry is a list of keys separated by colons, starting from the root
+when it begins with a colon and from the current container otherwise.
+Array elements are named by their zero-based index; an empty index names
+the end of the array.
+A colon that is part of a key is written as
+.Ql \e: .
+.Pp
+The types are
+.Cm string ,
+.Cm array ,
+.Cm dict ,
+.Cm bool ,
+.Cm real ,
+.Cm integer ,
+.Cm date
+and
+.Cm data .
+.Sh EXIT STATUS
+.Nm
+exits 0 on success and 1 if any command failed.
+.Sh EXAMPLES
+Change a bundle identifier:
+.Bd -literal -offset indent
+PlistBuddy -c "Set :CFBundleIdentifier org.example.app" Info.plist
+.Ed
+.Pp
+Append a dictionary to an array:
+.Bd -literal -offset indent
+PlistBuddy -c "Add :CFBundleDocumentTypes: dict" Info.plist
+.Ed
+.Sh SEE ALSO
+.Xr defaults 1 ,
+.Xr plutil 1
